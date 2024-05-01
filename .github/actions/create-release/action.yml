@@ -45,6 +45,7 @@ runs:
       shell: bash
       env:
         tag: ${{ inputs.tag }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         gh release create \
           "${tag}" \
