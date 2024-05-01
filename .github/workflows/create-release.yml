@@ -1,0 +1,33 @@
+name: Create Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: >-
+          Git tag to create the release from.
+        required: true
+        type: string
+
+      default_branch_name:
+        description: >-
+          The default Git branch for this repository.
+        required: false
+        default: main
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Release
+        uses: ./.github/actions/create-release
+        with:
+          tag: ${{ inputs.tag }}
+          default_branch_name: ${{ inputs.default_branch_name }}
