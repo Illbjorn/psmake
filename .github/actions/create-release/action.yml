@@ -34,7 +34,7 @@ runs:
           "${{ github.event.after }}")
 
         # produce the commit message output
-        echo "commit_messages=${msgs}" >> "$GITHUB_OUTPUT"
+        echo "commit_messages='${msgs}'" >> "$GITHUB_OUTPUT"
 
     - name: Create Release
       id: create-release
