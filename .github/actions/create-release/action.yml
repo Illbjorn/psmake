@@ -49,5 +49,4 @@ runs:
       run: |
         gh release create \
           "${tag}" \
-          --target "main" \
           --notes '${{ steps.get-commit-messages.outputs.commit_messages }}'
