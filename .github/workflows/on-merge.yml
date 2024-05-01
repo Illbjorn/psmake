@@ -14,74 +14,16 @@ defaults:
   run:
     shell: bash
 
-env:
-  DOT_VERSION_FILE_PATH: '.github/.VERSION'
-  TAG_PREFIX: v
-
-permissions:
-  # write required to create the Git tag
-  contents: write
-
 jobs:
-  # validate we don't have a matching tag for our
-  # .VERSION file version string
-  check-tag:
-    name: Check Tag
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
-        with:
-          fetch-depth: 0
+  gate:
+    name: Gate
+    uses: ./.github/workflows/gate.yml
 
-      - name: Get Version from .VERSION File
-        id: get-version
-        run: |
-          # get string from .VERSION file
-          verStringRaw=$(cat "${DOT_VERSION_FILE_PATH}")
-
-          # sanitize (trim down to just semver)
-          verString=$( echo "${verStringRaw}" | grep -Poi "^\s*\K[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}")
-
-          # produce version string output
-          echo "version=${verString}" >> "$GITHUB_OUTPUT"
-
-      - name: Look for a Matching Tag
-        env:
-          version: ${{ steps.get-version.outputs.version }}
-        run: |
-          # look for a matching tag
-          if git --no-pager tag --list | grep "${version}"; then
-            echo "::error::Existing tag matches version: ${version}."
-            exit 1
-          else
-            echo "No existing tag matches version: ${version}"
-            exit 0
-          fi
-
-  # create a git tag
   create-tag:
     name: Create Tag
-    runs-on: ubuntu-latest
-    needs: check-tag
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
-        with:
-          fetch-depth: 0
-
-      - name: Perform Git Config
-        run: |
-          git config --global user.name "PoshBot d[^_*]b"
-          git config --global user.email "noreply@psmake.github.com"
-
-      - name: Create Tag
-        env:
-          version: ${{ needs.check-tag.outputs.version }}
-        run: |
-          # define the tag string
-          tagStr="${TAG_PREFIX}${version}"
-          git tag "${tagStr}"
-          git push origin "${tagStr}"
+    needs: gate
+    uses: ./.github/workflows/create-tag.yml
+    with:
+      tag: v${{ needs.gate.outputs.version }}
+    permissions:
+      contents: write
