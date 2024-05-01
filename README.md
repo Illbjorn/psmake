@@ -25,7 +25,7 @@ in a language available on **all** operating systems.
 
 ## Installing the Module
 
-1. Head over to the [releases]([TODO](https://github.com/Illbjorn/psmake/releases)) section and grab
+1. Head over to the [releases](https://github.com/Illbjorn/psmake/releases) section and grab
 the latest PSMake release zip file.
 2. Extract this zip file somewhere on your machine.
 A path on the `$env:PSModulePath` is likely best.
