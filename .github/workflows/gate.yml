@@ -24,11 +24,16 @@ on:
 
 jobs:
   gate:
-    name: Gate
+    name: Check Tag
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
+        with:
+          fetch-depth: 0
+
       - name: Get Version String
         id: get-version
         uses: ./.github/actions/get-version
