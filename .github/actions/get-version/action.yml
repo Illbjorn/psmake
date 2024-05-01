@@ -1,0 +1,53 @@
+name: Get Version
+description: >-
+  `Get Version` retrieves a semantic version string
+  from a provided .VERSION file path.
+
+  NOTE: A .VERSION file is simply a file containing
+  ONLY a semantic version string.
+
+inputs:
+  file_path:
+    description: >-
+      Path to the .VERSION file, from which the
+      version string will be retrieved.
+    default: .github/.VERSION
+    required: false
+
+outputs:
+  version:
+    description: >-
+      The retrieved semantic version string.
+    value: ${{ steps.get-version.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate File Exists
+      shell: bash
+      env:
+        file_path: ${{ inputs.file_path }}
+      run: |
+        if [[ ! -f "${file_path}" ]]; then
+          echo "::error::Provided .VERSION file path does not exist: ${file_path}."
+          exit 1
+        else
+          echo "Found .VERSION file at path: ${file_path}."
+          exit 0
+        fi
+
+    - name: Get Version
+      id: get-version
+      shell: bash
+      env:
+        file_path: ${{ inputs.file_path }}
+      run: |
+        # get the raw version string
+        rawVer=$( cat "${file_path}" )
+
+        # trim it down to only the semantic version
+        # string itself
+        ver=$(echo "${rawVer}" | grep -Poi "^\s*\K[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}")
+
+        # produce the output
+        echo "version=${ver}" >> "$GITHUB_OUTPUT"
