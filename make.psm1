@@ -146,5 +146,4 @@ function target {
 ## Exports
 #
 
-Export-ModuleMember -Function make
-Export-ModuleMember -Function target
+Export-ModuleMember -Function make, target
