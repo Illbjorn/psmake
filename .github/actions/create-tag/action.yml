@@ -1,0 +1,23 @@
+name: Create Tag
+description: >-
+  Creates & pushes a lightweight Git tag.
+
+inputs:
+  tag:
+    description: >-
+      The Git tag to create.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create Tag
+      shell: bash
+      env:
+        tag: ${{ inputs.tag }}
+      run: |
+        # create git tag
+        git tag "${tag}"
+
+        # push the tag
+        git push origin "${tag}"
