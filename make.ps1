@@ -1,8 +1,18 @@
+<#
+.SYNOPSIS
+`make.ps1` is the PSMake file actually used for
+development of this module.
+
+.NOTES
+Author : Anthony Maxwell <am@hades.so>
+#>
 
 ###
 ## Functions
 #
 
+# produces an operating system path separator
+# independent path to the .VERSION file
 function dotVersionFilePath {
   # define path segments to .VERSION file
   $params = @{
@@ -15,6 +25,9 @@ function dotVersionFilePath {
   Join-Path @params
 }
 
+# produces a sanitized (MAJOR.MINOR.PATCH) semantic
+# version string from the .VERSION file at the provided
+# path
 function getVersionFromFile([string] $path) {
   # confirm our provided file exists
   if (!(Test-Path -Path $verFilePath -PathType Leaf)) {
@@ -32,6 +45,8 @@ function getVersionFromFile([string] $path) {
   }
 }
 
+# increments the specified semantic version segment
+# of a provided version string
 function incrementVersionSegment([string] $version, [string] $segment) {
   # disassemble version string segments
   [int] $major,
@@ -50,6 +65,8 @@ function incrementVersionSegment([string] $version, [string] $segment) {
   "${major}.${minor}.${patch}"
 }
 
+# writes a provided semantic version string to the
+# provided file path
 function setFileVersionString([string] $path, [string] $version) {
   # write the version string to file
   Set-Content -Path $path -Value $version | Out-Null
