@@ -1,0 +1,41 @@
+# Gate simply bundles `get-version` and `check-tag`
+# to produce a single reusable Workflow which can
+# be inserted to any other Workflow where failing
+# the Workflow run makes sense if a matching Git
+# Tag is found.
+
+name: Gate
+
+on:
+  workflow_call:
+    inputs:
+      version_file_path:
+        description: >-
+          Path to the .VERSION file.
+        required: false
+        default: .github/.VERSION
+        type: string
+    outputs:
+      version:
+        description: >-
+          The semantic version string retrieved in
+          the `get-version` step.
+        value: ${{ jobs.gate.outputs.version }}
+
+jobs:
+  gate:
+    name: Gate
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Get Version String
+        id: get-version
+        uses: ./.github/actions/get-version
+        with:
+          file_path: ${{ inputs.version_file_path }}
+
+      - name: Look for Matching Tag
+        uses: ./.github/actions/check-tag
+        with:
+          version: ${{ steps.get-version.outputs.version }}
