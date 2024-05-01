@@ -1,0 +1,30 @@
+name: Check Tag
+description: >-
+  Looks for an existing Git Tag which matches the
+  provided version string.
+
+  If a matching tag is found, this Action will fail
+  the run.
+
+inputs:
+  version:
+    description: >-
+      The version string to evaluate tags against.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Check Tag
+      env:
+        version: ${{ inputs.version }}
+      shell: bash
+      run: |
+        tags=$(git --no-pager tag --list)
+        if echo "${tags}" | grep "${version}"; then
+          echo "::error::An existing tag matches provided version: ${version}."
+          exit 1
+        else
+          echo "No matching tag found for version: ${version}."
+          exit 0
+        fi
