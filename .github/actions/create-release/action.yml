@@ -1,0 +1,48 @@
+# TODO: add customized author details (name, email)
+
+name: Create Release
+description: >-
+  Creates a GitHub release including all commit
+  messages from the inbound merge event.
+
+  NOTE: This will ONLY work properly on a `push`
+  event.
+
+inputs:
+  tag:
+    description: >-
+      Git tag to create the release from.
+    required: true
+
+  default_branch_name:
+    description: >-
+      The default Git branch for this repository.
+    required: false
+    default: main
+
+runs:
+  using: composite
+  steps:
+    - name: Get Formatted Commit Messages
+      id: get-commit-messages
+      shell: bash
+      run: |
+        # collect & format git commit messages
+        msgs=$(git --no-pager log \
+          --format="- [%an]: %s" \
+          "${{ github.event.push.before }}" \
+          "${{ github.event.push.after }}")
+
+        # produce the commit message output
+        echo "commit_messages=${msgs}" >> "$GITHUB_OUTPUT"
+
+    - name: Create Release
+      id: create-release
+      shell: bash
+      env:
+        tag: ${{ inputs.tag }}
+      run: |
+        gh release create \
+          "${tag}" \
+          --target "main" \
+          --notes "${{ steps.get-commit-messages.outputs.commit_messages }}"
