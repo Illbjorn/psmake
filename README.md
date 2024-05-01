@@ -71,12 +71,13 @@ Hello, Rob!
 # User-provided PSMake Target Input
 
 As we saw in the example above, if user input is
-required for the target - this input is accessible
-from the `$args` [automatic variable](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4).
+provided - this is accessible from the `$args`
+[automatic variable](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4).
 
 > [!NOTE]
 > `$args` will be of the length, size and type as
 > the **actual** provided user input.
+>
 > For example: `make sometarget 'val1', 'val2'` means
 > `$args` will be of type `string[]` holding values
 > `val1` and `val2`.
@@ -93,5 +94,8 @@ itself via the `$args` variable.
 
 # FAQ
 
-1. Which operating systems is this supported on?
-   1. This is a primary reason for my choosing PowerShell to implement this functionality: any operating system Microsoft offers a PowerShell package for!
+## Which operating systems is this supported on?
+
+This is a primary reason for my choosing PowerShell
+to implement this functionality: any operating
+system Microsoft offers a PowerShell package for!
