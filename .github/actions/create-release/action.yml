@@ -30,8 +30,8 @@ runs:
         # collect & format git commit messages
         msgs=$(git --no-pager log \
           --format="- [%an]: %s" \
-          "${{ github.event.before }}" \
-          "${{ github.event.after }}")
+          --ancestry-path ${{ github.event.before }}..${{ github.event.after }}
+        )
 
         # produce the commit message output
         {
@@ -50,4 +50,4 @@ runs:
         gh release create \
           "${tag}" \
           --target "main" \
-          --notes "${{ steps.get-commit-messages.outputs.commit_messages }}"
+          --notes '${{ steps.get-commit-messages.outputs.commit_messages }}'
