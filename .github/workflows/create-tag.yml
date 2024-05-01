@@ -1,0 +1,28 @@
+name: Create Tag
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: >-
+          The tag to create.
+        required: true
+        type: string
+
+permissions:
+  contents: write # required to create tags
+
+jobs:
+  create-tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Tag
+        uses: ./.github/actions/create-tag
+        with:
+          tag: ${{ inputs.tag }}
