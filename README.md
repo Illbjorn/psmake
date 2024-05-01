@@ -18,8 +18,8 @@ and it's a process fraught with edge-case error conditions
 that will likely not be documented.
 
 PSMake is something I created (because I want to
-use it!) to produce a similar experience working
-in a language available on **all** operating systems.
+use it!) to produce a similar experience in a
+language available on **all** major operating systems.
 
 # Quick Start
 
@@ -99,3 +99,10 @@ itself via the `$args` variable.
 This is a primary reason for my choosing PowerShell
 to implement this functionality: any operating
 system Microsoft offers a PowerShell package for!
+
+## Are targets case sensitive?
+
+No! PowerShell is not a case-sensitive language,
+your targets can be defined as `mEmEcAsE` if you
+so desired and that would work if invoked like:
+`make memecase`!
