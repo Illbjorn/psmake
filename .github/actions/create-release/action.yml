@@ -30,8 +30,8 @@ runs:
         # collect & format git commit messages
         msgs=$(git --no-pager log \
           --format="- [%an]: %s" \
-          "${{ github.event.push.before }}" \
-          "${{ github.event.push.after }}")
+          "${{ github.event.before }}" \
+          "${{ github.event.after }}")
 
         # produce the commit message output
         echo "commit_messages=${msgs}" >> "$GITHUB_OUTPUT"
