@@ -5,9 +5,10 @@ name: On Merge to Main
 on:
   push:
     # only run this Workflow if the actual module
-    # file is touched
+    # file or .VERSION file is touched
     paths:
       - make.psm1
+      - .github/.VERSION
 
 defaults:
   run:
