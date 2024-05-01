@@ -27,3 +27,10 @@ jobs:
       tag: v${{ needs.gate.outputs.version }}
     permissions:
       contents: write
+
+  create-release:
+    name: Create Release
+    needs: [gate, create-tag]
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: v${{ needs.gate.outputs.version }}
