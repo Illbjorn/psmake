@@ -26,10 +26,9 @@ language available on **all** major operating systems.
 ## Installing the Module
 
 1. Head over to the [releases](https://github.com/Illbjorn/psmake/releases) section and grab
-the latest PSMake release zip file.
-2. Extract this zip file somewhere on your machine.
+the latest PSMake release module (.psm1) file.
 A path on the `$env:PSModulePath` is likely best.
-3. [OPTIONAL]: Add loading of the module file to
+2. [OPTIONAL]: Add loading of the module file to
 your PowerShell profile (`$PROFILE`) like:
 ```powershell
 # If you extracted the module file on
@@ -47,50 +46,29 @@ At this point "PSMake" is installed!
 Create a `make.ps1` file with the following contents:
 ```powershell
 target 'sayhello' {
-  foreach ($arg in $args) {
-    Write-Host "Hello, ${arg}!"
+  [CmdletBinding()] param(
+    [Parameter(ValueFromRemainingArguments = $true)] [string[]]
+    $Names
+  )
+  foreach ($name in $Names) {
+    Write-Host "Hello, ${name}!"
   }
 }
 ```
 
 > [!NOTE]
-> Take note of the `$args` implementation, we'll
-> go further into this later.
+> Parameters defined in a `param()` statement are **_positionally_** bound.
 
 In your terminal, `cd` to the same directory as your
-`make.ps1` file and run: `make sayhello 'John' 'Steve' 'Rob'`.
+`make.ps1` file and run: `make sayhello -Arguments 'John' 'Steve' 'Rob'`.
 
 You should see:
 ```
-PS> make sayhello 'John' 'Steve' 'Rob'
+PS> make sayhello -Arguments 'John' 'Steve' 'Rob'
 Hello, John!
 Hello, Steve!
 Hello, Rob!
 ```
-
-# User-provided PSMake Target Input
-
-As we saw in the example above, if user input is
-provided - this is accessible from the `$args`
-[automatic variable](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4).
-
-> [!NOTE]
-> `$args` will be of the length, size and type as
-> the **actual** provided user input.
->
-> For example: `make sometarget 'val1', 'val2'` means
-> `$args` will be of type `string[]` holding values
-> `val1` and `val2`.
-
-The `make` command uses PowerShell's `ValueFromRemainingArguments`
-parameter attribute as a catchall for any "extra"
-user-provided arguments. This means all values not
-directly provided to a named or positional parameter
-will bind to the `AdditionalArguments` parameter.
-`AdditionalArguments` is then provided to your
-scriptblock, supplied via `target mytarget { myscriptblock }`,
-which PowerShell makes available to the scriptblock
-itself via the `$args` variable.
 
 # FAQ
 
