@@ -1,23 +1,14 @@
 #Requires -Version 7.0
-# TODO: the version 7.0 requirement is pre-emptive
-# defensive programming, need to validate if this
-# is actually a problem for <7.0
+# TODO: the version 7.0 requirement is pre-emptive defensive programming, need
+# to validate if this is actually a problem for <7.0
 
 ###
-## Vars
+## Functions
 #
 
-# define a path to a 'make.ps1' file in the current
-# working directory
-#
-# this is used when a make command is called to dot
-# source the make ps1 file in the current working
-# directory
-#
-# we use Join-Path here to prevent path separator
-# conflicts on different OS platforms
-$makeFilePath =
+function getMakeFilePath {
   Join-Path -Path $PWD.Path -ChildPath 'make.ps1'
+}
 
 ###
 ## Exported Commands
@@ -28,33 +19,28 @@ function make {
   .SYNOPSIS
   Provides the basic "make" command skeleton.
 
-  .PARAMETER Target
+  .PARAMETER Targets
   The "Make target" from the `make.ps1` file in
   the current directory you wish to call.
 
   .NOTES
   Author : Anthony Maxwell <am@hades.so>
   #>
-  [CmdletBinding(PositionalBinding = $false)]
-  param(
-    [Parameter(
-      Position = 0,
-      Mandatory = $false)]
-    [string] $Target = '',
-    [Parameter(
-      Mandatory = $false)]
-    [string] $File = $makeFilePath,
-    [Parameter(
-      Mandatory = $false,
-      ValueFromRemainingArguments = $true)]
-    [string[]] $AdditionalArgs
+  [CmdletBinding(PositionalBinding = $false)] param(
+    [Parameter(Mandatory = $false)][string[]]
+    $Arguments,
+    [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)][string[]]
+    $Targets = @()
   )
 
   begin {
     # confirm we received a target
-    if ($Target -eq '') {
+    if ($Targets.Count -eq 0) {
       throw 'Make command called with no target.'
     }
+
+    # get path to psmake file
+    $makeFilePath = getMakeFilePath
 
     # check if the psmake file exists
     if (!(Test-Path -Path $makeFilePath -PathType Leaf)) {
@@ -74,22 +60,29 @@ function make {
   }
 
   process {
-    # confirm our target exists
-    if ($Target -notin $global:__PSMakeTargets.Keys) {
-      throw "Requested target '${Target}' not found."
-    }
+    # iterate provided targets
+    foreach ($target in $Targets) {
+      # confirm our target exists
+      if ($target -notin $global:__PSMakeTargets.Keys) {
+        throw "Requested target '${target}' not found."
+      }
 
-    # confirm our target is a scriptblock
-    $exec = $global:__PSMakeTargets[$Target]
-    if ($exec -isnot [scriptblock]) {
-      throw "Requested make target '${Target}' is not a valid scriptblock. Received type: '$($exec.GetType())'."
-    }
+      # confirm our target is a scriptblock
+      $scriptBlocks = $global:__PSMakeTargets[$target]
+      if ($scriptBlocks -isnot [scriptblock[]]) {
+        throw "Requested make target '${target}' is not a valid scriptblock array. Received type: '$($scriptBlocks.GetType())'."
+      }
 
-    # execute target, passing in any additional
-    # received arguments
-    Write-Host "============ BEGIN: ${Target}"
-    Invoke-Command -ScriptBlock $exec -ArgumentList $AdditionalArgs
-    Write-Host "============ END: ${Target}"
+      # iterate scriptblocks
+      Write-Host "============ BEGIN: ${target}"
+      foreach ($scriptBlock in $scriptBlocks) {
+        # execute target, passing in any additional
+        # received arguments
+        . $scriptBlock $Arguments
+        #Invoke-Command -ScriptBlock $scriptBlock -ArgumentList $Arguments
+      }
+      Write-Host "============ END: ${target}"
+    }
   }
 }
 
@@ -99,7 +92,7 @@ function target {
   Provides the DSL-like function to replicate a
   Makefile target.
 
-  .PARAMETER Target
+  .PARAMETER Name
   The desired name of the "Make target".
 
   .PARAMETER Command
@@ -124,9 +117,9 @@ function target {
   [CmdletBinding()]
   Param(
     [Parameter(Position = 0)]
-    [string] $Target,
-    [Parameter(Position = 1)]
-    [scriptblock] $Command
+    [string] $Name,
+    [Parameter(Position = 1, ValueFromRemainingArguments = $true)]
+    [scriptblock[]] $Commands
   )
 
   begin {
@@ -137,8 +130,8 @@ function target {
   }
 
   process {
-    # create the make target entry
-    $global:__PSMakeTargets[$Target] = $Command
+    # create the make targets entry
+    $global:__PSMakeTargets[$Name] = $Commands
   }
 }
 
