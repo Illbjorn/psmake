@@ -96,7 +96,7 @@ function setFileVersionString([string] $path, [string] $version) {
 }
 
 ###
-## Targets
+## PSMake Targets
 #
 
 # Bump accepts an input of 'major', 'minor' or
