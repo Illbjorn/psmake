@@ -73,13 +73,13 @@ function setFileVersionString([string] $path, [string] $version) {
 }
 
 ###
-## Targets
+## PSMake Target Functionality
 #
 
-# Bump accepts an input of 'major', 'minor' or
-# 'patch' and increments that segment of the
-# semantic version string in: .github/.VERSION
-target 'bump' {
+[scriptblock] $bump = {
+  [CmdletBinding()] param(
+    [string] $VersionSegment
+  )
   # get path to .VERSION file
   $verFilePath = dotVersionFilePath
 
@@ -87,10 +87,19 @@ target 'bump' {
   $ver = getVersionFromFile $verFilePath
 
   # increment the requested segment
-  $newVer = incrementVersionSegment $ver $args[0]
+  $newVer = incrementVersionSegment $ver $VersionSegment
 
   # write the version back to file
   setFileVersionString $verFilePath $newVer
 
   Write-Host "Bumped Version: ${ver} -> ${newVer}"
 }
+
+###
+## Targets
+#
+
+# Bump accepts an input of 'major', 'minor' or
+# 'patch' and increments that segment of the
+# semantic version string in: .github/.VERSION
+target 'bump' $bump
